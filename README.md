@@ -2,9 +2,9 @@
 
 Un’esperienza web immersiva dedicata a Tanjiro e Nezuko, con ritratti interattivi e quattro ricordi che raccontano l’inizio di **Demon Slayer**. Questo repository contiene il codice sorgente, le illustrazioni e i prompt usati per realizzare il sito.
 
-**Anteprima:** [home](https://mainframe-tanjiro-story.deliguoromanuel.chatgpt.site/) · [la storia](https://mainframe-tanjiro-story.deliguoromanuel.chatgpt.site/storia)
+**Sito pubblico su GitHub Pages:** [home](https://deliguoromanuel-stack.github.io/la-storia-di-tanjiro-anteprima/) · [la storia](https://deliguoromanuel-stack.github.io/la-storia-di-tanjiro-anteprima/storia/)
 
-L’anteprima ospitata su Sites è privata e può richiedere l’accesso con un account autorizzato. Il progetto si può eseguire anche sul proprio computer seguendo le istruzioni sotto.
+Il sito su GitHub Pages è accessibile pubblicamente. L’[anteprima originale su Sites](https://mainframe-tanjiro-story.deliguoromanuel.chatgpt.site/) resta privata e può richiedere un account autorizzato. Il progetto si può eseguire anche sul proprio computer seguendo le istruzioni sotto.
 
 ![Anteprima della home con Tanjiro e il pulsante Scopri la storia](docs/anteprima-home.png)
 
@@ -49,7 +49,17 @@ Apri l’indirizzo indicato dal terminale, normalmente `http://127.0.0.1:5173/`.
 pnpm build
 ```
 
-La build esegue il controllo TypeScript e genera il sito statico nella cartella `dist/`. Per pubblicarlo su un hosting diverso, configura il ritorno a `index.html` per le rotte dell’app, compresa `/storia`. La configurazione attuale usa percorsi degli asset dalla radice del dominio.
+La build esegue il controllo TypeScript e genera il sito statico nella cartella `dist/`. Per pubblicarlo su un hosting diverso, configura il ritorno a `index.html` per le rotte dell’app, compresa `/storia`.
+
+### Pubblicazione su GitHub Pages
+
+Il workflow `.github/workflows/pages.yml` compila e pubblica automaticamente il sito a ogni aggiornamento di `main`. In **Settings → Pages**, la sorgente deve essere **GitHub Actions**.
+
+```sh
+pnpm build:pages
+```
+
+Questa build usa il prefisso `/la-storia-di-tanjiro-anteprima/` per script, immagini e navigazione. Genera anche `storia/index.html`, così il link diretto alla storia e il ricaricamento della pagina funzionano su Pages. GitHub Pages deve pubblicare la build `dist/`: i file sorgenti React non si possono pubblicare direttamente come sito statico.
 
 ## Stack
 

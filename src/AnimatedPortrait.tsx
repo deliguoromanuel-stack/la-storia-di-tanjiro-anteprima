@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortraitRenderer } from './portraitRig';
 import type { Character, PortraitPose, PortraitRenderer } from './portraitRig';
+import { assetUrl } from './sitePaths';
 
 const clamp=(value:number,min=-1,max=1)=>Math.max(min,Math.min(max,value));
 export default function AnimatedPortrait({character,paused}:{character:Character;paused:boolean}) {
@@ -78,7 +79,7 @@ export default function AnimatedPortrait({character,paused}:{character:Character
       rendererFailed=!renderer;setReady(!!renderer);raf=requestAnimationFrame(update);
     };
     image.onerror=()=>{if(!disposed)setFailed(true);};
-    image.src=`/assets/${character}-atlas.png`;
+    image.src=assetUrl(`${character}-atlas.png`);
     const contextLost=(event:Event)=>{event.preventDefault();cancelAnimationFrame(raf);renderer?.destroy();renderer=null;rendererFailed=true;setReady(false);raf=requestAnimationFrame(update);};
     canvas.addEventListener('webglcontextlost',contextLost);
     window.addEventListener('pointermove',move,{passive:true});window.addEventListener('blur',reset);document.documentElement.addEventListener('pointerleave',reset);
@@ -86,7 +87,7 @@ export default function AnimatedPortrait({character,paused}:{character:Character
   },[character]);
   const label=character==='tanjiro'?'Tanjiro Kamado: occhi che seguono il cursore, testa, capelli e orecchini animati':'Nezuko Kamado: occhi che seguono il cursore, testa, capelli e fiocco animati';
   return <div ref={containerRef} className={`portrait-rig puppet-rig ${character} ${loaded?'is-loaded':''} ${paused?'still':''}`} data-renderer={ready?'mesh':'fallback'}>
-    <div className="portrait-viewport"><canvas ref={canvasRef} className={`portrait-canvas ${ready?'ready':''}`} role="img" aria-label={label}/>{!ready&&<div className="portrait-fallback" style={{'--col':fallbackFrame%3,'--row':Math.floor(fallbackFrame/3)} as React.CSSProperties}><img className="portrait-atlas" src={`/assets/${character}-atlas.png`} alt={label} draggable="false"/></div>}</div>
+    <div className="portrait-viewport"><canvas ref={canvasRef} className={`portrait-canvas ${ready?'ready':''}`} role="img" aria-label={label}/>{!ready&&<div className="portrait-fallback" style={{'--col':fallbackFrame%3,'--row':Math.floor(fallbackFrame/3)} as React.CSSProperties}><img className="portrait-atlas" src={assetUrl(`${character}-atlas.png`)} alt={label} draggable="false"/></div>}</div>
     {failed&&<p className="asset-error">Il ritratto non è disponibile. Ricarica la pagina per riprovare.</p>}
   </div>;
 }

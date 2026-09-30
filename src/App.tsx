@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import AnimatedPortrait from './AnimatedPortrait';
 import StoryScene from './StoryScene';
+import { pageUrl, routePath } from './sitePaths';
 
 const EMAIL='deliguoromanuel@gmail.com';
 const chapters=[
@@ -12,11 +13,11 @@ const chapters=[
 ];
 function useReducedMotion(){const [reduced,setReduced]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches);useEffect(()=>{const q=matchMedia('(prefers-reduced-motion: reduce)');const update=()=>setReduced(q.matches);q.addEventListener('change',update);return()=>q.removeEventListener('change',update);},[]);return reduced;}
 type Navigate=(path:string,origin?:[number,number])=>void;
-function RouteLink({href,navigate,children,className}:{href:string;navigate:Navigate;children:ReactNode;className?:string}){return <a href={href} className={className} onClick={(e:MouseEvent<HTMLAnchorElement>)=>{if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();const box=e.currentTarget.getBoundingClientRect();navigate(href,[box.left+box.width/2,box.top+box.height/2]);}}>{children}</a>;}
+function RouteLink({href,navigate,children,className}:{href:string;navigate:Navigate;children:ReactNode;className?:string}){return <a href={pageUrl(href)} className={className} onClick={(e:MouseEvent<HTMLAnchorElement>)=>{if(e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;e.preventDefault();const box=e.currentTarget.getBoundingClientRect();navigate(href,[box.left+box.width/2,box.top+box.height/2]);}}>{children}</a>;}
 function MotionControl({paused,toggle}:{paused:boolean;toggle:()=>void}){return <button className="motion-control" onClick={toggle} aria-pressed={paused} aria-label={paused?'Riprendi animazione':'Metti in pausa animazione'} title={paused?'Riprendi animazione':'Pausa animazione'}><span aria-hidden="true">{paused?'▶':'Ⅱ'}</span></button>;}
 
 export default function App(){
- const [path,setPath]=useState(location.pathname),[paused,setPaused]=useState(false),[active,setActive]=useState(0),[terms,setTerms]=useState(false);
+ const [path,setPath]=useState(routePath),[paused,setPaused]=useState(false),[active,setActive]=useState(0),[terms,setTerms]=useState(false);
  const [cookieOpen,setCookieOpen]=useState(()=>{try{return !document.cookie.split('; ').some(c=>c.startsWith('ds_cookie_notice=v1'));}catch{return true;}});
  const [thought,setThought]=useState<{phase:'enter'|'leave';variant:number;origin:[number,number]}|null>(null);
  const [chapterThought,setChapterThought]=useState<{variant:number;serial:number}|null>(null);
@@ -25,14 +26,14 @@ export default function App(){
  const reduced=useReducedMotion(),story=path==='/storia'||path==='/storia/';
  const toggle=()=>setPaused(p=>!p);
  const navigate=useCallback<Navigate>((next,origin)=>{
-  if(thoughtBusy.current||location.pathname===next)return;
+  if(thoughtBusy.current||routePath()===next)return;
   thoughtBusy.current=true;setThought({phase:'enter',variant:Math.floor(Math.random()*3),origin:origin??[innerWidth/2,innerHeight/2]});
   const covered=reduced?440:750;
-  timers.current.push(setTimeout(()=>{history.pushState({},'',next);setPath(next);window.scrollTo({top:0,behavior:'instant'});setThought(t=>t?{...t,phase:'leave'}:null);},covered));
+  timers.current.push(setTimeout(()=>{history.pushState({},'',pageUrl(next));setPath(next);window.scrollTo({top:0,behavior:'instant'});setThought(t=>t?{...t,phase:'leave'}:null);},covered));
   timers.current.push(setTimeout(()=>{setThought(null);thoughtBusy.current=false;},covered+(reduced?600:1100)));
  },[reduced]);
  useEffect(()=>()=>timers.current.forEach(clearTimeout),[]);
- useEffect(()=>{const pop=()=>{timers.current.forEach(clearTimeout);thoughtBusy.current=false;setThought(null);setPath(location.pathname);};window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);},[]);
+ useEffect(()=>{const pop=()=>{timers.current.forEach(clearTimeout);thoughtBusy.current=false;setThought(null);setPath(routePath());};window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);},[]);
  useEffect(()=>{document.title=story?'Demon Slayer — Il primo ricordo':'Demon Slayer — Tanjiro & Nezuko';requestAnimationFrame(()=>headingRef.current?.focus({preventScroll:true}));},[story]);
  useEffect(()=>{if(terms&&!dialogRef.current?.open)dialogRef.current?.showModal();if(!terms&&dialogRef.current?.open)dialogRef.current.close();},[terms]);
  useEffect(()=>{

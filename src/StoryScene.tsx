@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { assetUrl } from './sitePaths';
 
 type Pair=[number,number];
 type Actor={head:[number,number,number,number];eyes:[number,number,number,number];hair:[number,number,number,number];earrings?:boolean};
@@ -102,9 +103,9 @@ export default function StoryScene({chapter,paused,alt}:{chapter:number;paused:b
     }
     resizeObserver=new ResizeObserver(()=>{resize();kick();});resizeObserver.observe(canvas);resize();setReady(true);host.dataset.renderer='mesh';kick();
    }catch{setReady(false);host.dataset.renderer='image';}
-  };image.onerror=()=>{if(!disposed)setFailed(true);};image.src=`/assets/scene-0${chapter}.png`;
+  };image.onerror=()=>{if(!disposed)setFailed(true);};image.src=assetUrl(`scene-0${chapter}.png`);
   window.addEventListener('pointermove',move,{passive:true});window.addEventListener('blur',reset);document.documentElement.addEventListener('pointerleave',reset);
   return()=>{disposed=true;cancelAnimationFrame(raf);observer.disconnect();resizeObserver?.disconnect();canvas.removeEventListener('webglcontextlost',contextLost);window.removeEventListener('pointermove',move);window.removeEventListener('blur',reset);document.documentElement.removeEventListener('pointerleave',reset);image.onload=null;image.onerror=null;if(texture)gl.deleteTexture(texture);if(buffer)gl.deleteBuffer(buffer);if(program)gl.deleteProgram(program);shaders.forEach(s=>gl.deleteShader(s));kickRef.current=()=>{};};
  },[chapter]);
- return <div ref={hostRef} className={`scene-rig scene-${chapter} ${ready?'ready':''} ${paused?'paused':''}`}><img src={`/assets/scene-0${chapter}.png`} alt={alt} loading="lazy" className="scene-poster"/><canvas ref={canvasRef} className="scene-canvas" aria-hidden="true"/><div className="scene-atmosphere" aria-hidden="true"/>{failed&&<span className="scene-error">Immagine non disponibile.</span>}</div>;
+ return <div ref={hostRef} className={`scene-rig scene-${chapter} ${ready?'ready':''} ${paused?'paused':''}`}><img src={assetUrl(`scene-0${chapter}.png`)} alt={alt} loading="lazy" className="scene-poster"/><canvas ref={canvasRef} className="scene-canvas" aria-hidden="true"/><div className="scene-atmosphere" aria-hidden="true"/>{failed&&<span className="scene-error">Immagine non disponibile.</span>}</div>;
 }
